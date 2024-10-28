@@ -1,3 +1,10 @@
+# https://github.com/GameDrivenDesign/docker-godot-export/blob/master/Dockerfile
+# https://chucklindblom.com/2021/04/05/working-godot-docker-container/
+# https://stackoverflow.com/a/49676568
+
+# https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-docker-container-action
+
+
 FROM ubuntu
 # https://hub.docker.com/_/ubuntu/
 
@@ -38,11 +45,14 @@ RUN wget https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}
 
 # ------------------------------------------------------------------
 
+# Variables
+ENV EMSDK_VERSION_TO_INSTALL "latest"
 
 RUN git clone https://github.com/emscripten-core/emsdk.git
-RUN ./emsdk/emsdk install 3.1.39
-RUN ./emsdk/emsdk activate 3.1.39
-RUN source ./emsdk/emsdk.sh     (or ./emsdk.bat on windows)
+RUN ./emsdk/emsdk install ${EMSDK_VERSION_TO_INSTALL}
+RUN ./emsdk/emsdk activate ${EMSDK_VERSION_TO_INSTALL}
+#RUN source ./emsdk/emsdk.sh
+RUN echo 'source ./emsdk/emsdk.sh' >> $HOME/.bashrc
 
 # ------------------------------------------------------------------
 
