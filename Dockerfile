@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM alpine
 # https://hub.docker.com/_/ubuntu/
 
 
@@ -11,20 +11,16 @@ ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
 # ------------------------------------------------------------------
 
 
-# Update default packages
-RUN apt-get update
+RUN apk upgrade --no-cache
 
 # Get Ubuntu packages
-RUN apt-get install -y \
-    build-essential \
+RUN apk add --no-cache \
+#    build-essential \
     curl \
     wget \
     unzip \
     git \
     python3
-
-# Update new packages
-RUN apt-get update
 
 # ------------------------------------------------------------------
 # Get Godot
@@ -59,9 +55,11 @@ ENV EMSDK_NODE="/emsdk/node/${_THIS_DOCKER_EMSDK_NODE_VERSION}_64bit/bin/node"
 # ------------------------------------------------------------------
 
 # Get Rust
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN apk add --no-cache build-base
 
 RUN rustup update
 RUN rustup toolchain add nightly
@@ -76,6 +74,7 @@ RUN xwin --accept-license splat --output $HOME/.xwin
 RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 RUN rustup update
 RUN rustup update nightly
+RUN rustup default nightly
 
 RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' >> $HOME/.cargo/config.toml
 
@@ -87,4 +86,4 @@ RUN echo "----------------------------------------"
 
 LABEL org.opencontainers.image.source https://github.com/0x53A/rust-gdext-wasm-github-action
 
-ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["/bin/bash"]
