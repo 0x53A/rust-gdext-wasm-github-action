@@ -57,9 +57,9 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN rustup toolchain add nightly
-RUN rustup target add wasm32-unknown-emscripten
-RUN rustup target add x86_64-unknown-linux-gnu
-RUN rustup target add x86_64-pc-windows-msvc
+RUN rustup target add wasm32-unknown-emscripten --toolchain nightly
+RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
+RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
 RUN cargo install xwin
 RUN xwin --accept-license splat --output /home/me/.xwin
 
