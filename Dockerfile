@@ -97,12 +97,12 @@ RUN rustup toolchain add nightly
 RUN rustup default nightly
 
 RUN rustup target add wasm32-unknown-emscripten --toolchain nightly
+RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
 RUN rustup component add rust-src
 
-#RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
-#RUN cargo install xwin
-#RUN xwin --accept-license splat --output $HOME/.xwin
-#RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' > $HOME/.cargo/config.toml
+RUN cargo install xwin
+RUN xwin --accept-license splat --output $HOME/.xwin
+RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' > $CARGO_HOME/config.toml
 
 #RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
 #RUN rustup target add x86_64-unknown-linux-musl --toolchain nightly
