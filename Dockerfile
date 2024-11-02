@@ -1,59 +1,5 @@
 # --------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
-# Godot build image
-
-FROM alpine as stage_build_godot
-
-ENV _THIS_DOCKER_GODOT_VERSION "4.3"
-
-RUN apk upgrade --no-cache
-RUN apk add --no-cache \
-    wget \
-    unzip
-
-# since this is just a build container anyway, we can split the command into multiple lines
-
-RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip \
-    && wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
-
-RUN unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
-RUn unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
-
-RUN mkdir -p /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
-
-RUN mv Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64 /godot_bin/godot
-RUN mv templates/* /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
-
-# https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html#self-contained-mode
-RUN echo "1" >> /godot_bin/_sc_
-
-
-# --------------------------------------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------------------------------------
-# emsdk build image
-
-FROM emscripten/emsdk:3.1.70 as stage_build_emsdk
-# https://github.com/emscripten-core/emsdk/tree/main/docker
-
-# --------------------------------------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------------------------------------
-# Alpine up to date and with dependencies
-
-FROM alpine as stage_prebuild_alpine
-
-RUN apk upgrade --no-cache
-
-RUN apk add --no-cache \
-    curl \
-    wget \
-    unzip \
-    git \
-    python3 \
-    gcompat \
-    build-base
-
-# --------------------------------------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------------------------------------
 # Ubuntu up to date and with dependencies
 
 FROM ubuntu as stage_prebuild_ubuntu
@@ -71,6 +17,65 @@ RUN apt-get install -y \
 
 # Update new packages
 RUN apt-get update
+
+# --------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------
+# Godot binary build image (download it)
+
+FROM stage_prebuild_ubuntu as stage_build_godot_bin
+
+ENV _THIS_DOCKER_GODOT_VERSION "4.3"
+
+RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
+RUN unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
+RUN mkdir /godot_bin
+RUN mv Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64 /godot_bin/godot
+
+
+# --------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------
+# Godot export templates build image (download it)
+
+FROM stage_prebuild_ubuntu as stage_build_godot_templates
+
+ENV _THIS_DOCKER_GODOT_VERSION "4.3"
+
+# RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
+# RUN unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
+
+
+RUN wget https://github.com/0x53A/godot-export-templates/releases/download/4-3-stable/export_templates_4.3.stable_win_and_web_release_only.zip
+RUN unzip export_templates_4.3.stable_win_and_web_release_only.zip
+
+RUN mkdir -p /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
+RUN mv export_templates_4.3.stable_win_and_web_release_only/* /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
+
+
+# --------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------
+# emsdk build image
+
+FROM emscripten/emsdk:3.1.70 as stage_build_emsdk
+# https://github.com/emscripten-core/emsdk/tree/main/docker
+
+
+# --------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------
+# Alpine up to date and with dependencies
+
+# FROM alpine as stage_prebuild_alpine
+
+# RUN apk upgrade --no-cache
+
+# RUN apk add --no-cache \
+#     curl \
+#     wget \
+#     unzip \
+#     git \
+#     python3 \
+#     gcompat \
+#     build-base
+
 
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -104,6 +109,7 @@ RUN echo "----------------------------------------"
 RUN rustup show
 RUN echo "----------------------------------------"
 
+
 # --------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
 # main image
@@ -120,9 +126,13 @@ ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
 # ------------------------------------------------------------------
 # Get Godot
 
-COPY --from=stage_build_godot /godot_bin /godot_bin
+COPY --from=stage_build_godot_bin /godot_bin /godot_bin
+COPY --from=stage_build_godot_templates /godot_bin/editor_data/templates /godot_bin/editor_data/templates
 
 ENV PATH="/godot_bin:${PATH}"
+
+# https://docs.godotengine.org/en/stable/tutorials/io/data_paths.html#self-contained-mode
+RUN echo "1" >> /godot_bin/_sc_
 
 RUN echo "----------------------------------------" && godot --version && echo "----------------------------------------"
 
