@@ -18,6 +18,7 @@ RUN apt-get install -y \
 # Update new packages
 RUN apt-get update
 
+
 # --------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
 # Godot binary build image (download it)
@@ -47,8 +48,8 @@ ENV _THIS_DOCKER_GODOT_VERSION "4.3"
 RUN wget https://github.com/0x53A/godot-export-templates/releases/download/4-3-stable/export_templates_4.3.stable_win_and_web_release_only.zip
 RUN unzip export_templates_4.3.stable_win_and_web_release_only.zip
 
-RUN mkdir -p /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
-RUN mv export_templates_4.3.stable_win_and_web_release_only/* /godot_bin/editor_data/templates/${_THIS_DOCKER_GODOT_VERSION}.stable
+RUN mkdir -p /godot_bin/editor_data/export_templates/${_THIS_DOCKER_GODOT_VERSION}.stable
+RUN mv export_templates_4.3.stable_win_and_web_release_only/* /godot_bin/editor_data/export_templates/${_THIS_DOCKER_GODOT_VERSION}.stable
 
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +128,7 @@ ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
 # Get Godot
 
 COPY --from=stage_build_godot_bin /godot_bin /godot_bin
-COPY --from=stage_build_godot_templates /godot_bin/editor_data/templates /godot_bin/editor_data/templates
+COPY --from=stage_build_godot_templates /godot_bin/editor_data/export_templates /godot_bin/editor_data/export_templates
 
 ENV PATH="/godot_bin:${PATH}"
 
