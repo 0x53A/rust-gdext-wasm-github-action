@@ -5,9 +5,9 @@ FROM ubuntu
 
 # ------------------------------------------------------------------
 # Variables
-ENV GODOT_VERSION "4.3"
-ENV EMSDK_VERSION_TO_INSTALL "3.1.70"
-
+ENV _THIS_DOCKER_GODOT_VERSION "4.3"
+ENV _THIS_DOCKER_EMSDK_VERSION_TO_INSTALL "3.1.70"
+ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
 # ------------------------------------------------------------------
 
 
@@ -29,25 +29,32 @@ RUN apt-get update
 # ------------------------------------------------------------------
 # Get Godot
 
-RUN wget https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
-    && wget https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz \
+RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip \
+    && wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz \
     && mkdir ~/.cache \
     && mkdir -p ~/.config/godot \
-    && mkdir -p ~/.local/share/godot/templates/${GODOT_VERSION}.stable \
-    && unzip Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip \
-    && mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot \
-    && unzip Godot_v${GODOT_VERSION}-stable_export_templates.tpz \
-    && mv templates/* ~/.local/share/godot/templates/${GODOT_VERSION}.stable \
-    && rm -f Godot_v${GODOT_VERSION}-stable_export_templates.tpz Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+    && mkdir -p ~/.local/share/godot/templates/${_THIS_DOCKER_GODOT_VERSION}.stable \
+    && unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip \
+    && mv Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot \
+    && unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz \
+    && mv templates/* ~/.local/share/godot/templates/${_THIS_DOCKER_GODOT_VERSION}.stable \
+    && rm -f Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
 
 # ------------------------------------------------------------------
 # Get EMSDK
 
 RUN git clone https://github.com/emscripten-core/emsdk.git
-RUN ./emsdk/emsdk install ${EMSDK_VERSION_TO_INSTALL}
-RUN ./emsdk/emsdk activate ${EMSDK_VERSION_TO_INSTALL}
-#RUN source ./emsdk/emsdk.sh
-RUN echo 'source ./emsdk/emsdk_env.sh' >> $HOME/.bashrc
+RUN ./emsdk/emsdk install ${_THIS_DOCKER_EMSDK_VERSION_TO_INSTALL}
+RUN ./emsdk/emsdk activate ${_THIS_DOCKER_EMSDK_VERSION_TO_INSTALL}
+
+#note: github actions doesn't run .bashrc
+
+ENV PATH="/emsdk:${PATH}"
+ENV PATH="/emsdk/upstream/emscripten:${PATH}"
+ENV PATH="/emsdk/node/${_THIS_DOCKER_EMSDK_NODE_VERSION}_64bit/bin:${PATH}"
+
+ENV EMSDK="/emsdk"
+ENV EMSDK_NODE="/emsdk/node/${_THIS_DOCKER_EMSDK_NODE_VERSION}_64bit/bin/node"
 
 # ------------------------------------------------------------------
 
@@ -72,6 +79,9 @@ RUN rustup update nightly
 
 RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' >> $HOME/.cargo/config.toml
 
+RUN echo "----------------------------------------"
+RUN rustup show
+RUN echo "----------------------------------------"
 
 # ------------------------------------------------------------------
 
