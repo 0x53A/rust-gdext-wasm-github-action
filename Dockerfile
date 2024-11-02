@@ -6,7 +6,7 @@ FROM ubuntu
 # ------------------------------------------------------------------
 # Variables
 ENV GODOT_VERSION "4.3"
-ENV EMSDK_VERSION_TO_INSTALL "latest"
+ENV EMSDK_VERSION_TO_INSTALL "3.1.70"
 
 # ------------------------------------------------------------------
 
@@ -56,7 +56,9 @@ RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+RUN rustup update
 RUN rustup toolchain add nightly
+RUN rustup update nightly
 RUN rustup target add wasm32-unknown-emscripten --toolchain nightly
 RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
 RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
@@ -65,6 +67,8 @@ RUN xwin --accept-license splat --output $HOME/.xwin
 
 # I have no idea why this might be neccessary
 RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+RUN rustup update
+RUN rustup update nightly
 
 RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' >> $HOME/.cargo/config.toml
 
@@ -73,3 +77,4 @@ RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-
 
 LABEL org.opencontainers.image.source https://github.com/0x53A/rust-gdext-wasm-github-action
 
+ENTRYPOINT ["/bin/bash"]
