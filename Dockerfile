@@ -47,7 +47,7 @@ RUN git clone https://github.com/emscripten-core/emsdk.git
 RUN ./emsdk/emsdk install ${EMSDK_VERSION_TO_INSTALL}
 RUN ./emsdk/emsdk activate ${EMSDK_VERSION_TO_INSTALL}
 #RUN source ./emsdk/emsdk.sh
-RUN echo 'source ./emsdk/emsdk.sh' >> $HOME/.bashrc
+RUN echo 'source ./emsdk/emsdk_env.sh' >> $HOME/.bashrc
 
 # ------------------------------------------------------------------
 
@@ -61,9 +61,12 @@ RUN rustup target add wasm32-unknown-emscripten --toolchain nightly
 RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
 RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
 RUN cargo install xwin
-RUN xwin --accept-license splat --output /home/me/.xwin
+RUN xwin --accept-license splat --output $HOME/.xwin
 
-RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=/home/me/.xwin/crt/lib/x86_64",\n  "-Lnative=/home/me/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=/home/me/.xwin/sdk/lib/ucrt/x86_64"\n]\n' >> $HOME/.cargo/config.toml
+# I have no idea why this might be neccessary
+RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+
+RUN printf '[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' >> $HOME/.cargo/config.toml
 
 
 # ------------------------------------------------------------------
