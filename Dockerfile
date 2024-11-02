@@ -101,8 +101,11 @@ RUN rustup target add x86_64-pc-windows-msvc --toolchain nightly
 RUN rustup component add rust-src
 
 RUN cargo install xwin
-RUN xwin --accept-license splat --output $HOME/.xwin
-RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$HOME/.xwin/crt/lib/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/um/x86_64",\n  "-Lnative=$HOME/.xwin/sdk/lib/ucrt/x86_64"\n]\n' > $CARGO_HOME/config.toml
+
+ENV XWIN_HOME="/rust/.xwin"
+
+RUN xwin --accept-license splat --output $XWIN_HOME
+RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$XWIN_HOME/crt/lib/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/um/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/ucrt/x86_64"\n]\n' > $CARGO_HOME/config.toml
 
 #RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
 #RUN rustup target add x86_64-unknown-linux-musl --toolchain nightly
@@ -159,6 +162,7 @@ COPY --from=stage_build_rust /rust/.cargo /rust/.cargo
 
 ENV CARGO_HOME="/rust/.cargo"
 ENV RUSTUP_HOME="/rust/.rustup"
+ENV XWIN_HOME="/rust/.xwin"
 
 ENV PATH="/rust/.cargo/bin:${PATH}"
 
