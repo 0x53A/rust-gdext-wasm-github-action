@@ -157,8 +157,7 @@ RUN echo "----------------------------------------" && emcc --version && echo "-
 
 # ------------------------------------------------------------------
 
-COPY --from=stage_build_rust /rust/.rustup /rust/.rustup
-COPY --from=stage_build_rust /rust/.cargo /rust/.cargo
+COPY --from=stage_build_rust /rust /rust
 
 ENV CARGO_HOME="/rust/.cargo"
 ENV RUSTUP_HOME="/rust/.rustup"
