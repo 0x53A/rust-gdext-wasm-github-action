@@ -105,7 +105,7 @@ RUN cargo install xwin
 ENV XWIN_HOME="/rust/.xwin"
 
 RUN xwin --accept-license splat --output $XWIN_HOME
-RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$XWIN_HOME/crt/lib/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/um/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/ucrt/x86_64"\n]\n' > $CARGO_HOME/config.toml
+RUN printf '\n\n[target.x86_64-pc-windows-msvc]\nlinker = "lld"\nrustflags = [\n  "-Lnative=$XWIN_HOME/crt/lib/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/um/x86_64",\n  "-Lnative=$XWIN_HOME/sdk/lib/ucrt/x86_64"\n]\n' > $CARGO_HOME/config
 
 #RUN rustup target add x86_64-unknown-linux-gnu --toolchain nightly
 #RUN rustup target add x86_64-unknown-linux-musl --toolchain nightly
