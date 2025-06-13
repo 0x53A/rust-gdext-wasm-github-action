@@ -27,7 +27,7 @@ RUN apt-get update
 
 FROM stage_prebuild_ubuntu as stage_build_godot_bin
 
-ENV _THIS_DOCKER_GODOT_VERSION "4.3"
+ENV _THIS_DOCKER_GODOT_VERSION "4.4.1"
 
 RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
 RUN unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64.zip
@@ -41,24 +41,24 @@ RUN mv Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_linux.x86_64 /godot_bin/godot
 
 FROM stage_prebuild_ubuntu as stage_build_godot_templates
 
-ENV _THIS_DOCKER_GODOT_VERSION "4.3"
+ENV _THIS_DOCKER_GODOT_VERSION "4.4.1"
 
 # RUN wget https://github.com/godotengine/godot/releases/download/${_THIS_DOCKER_GODOT_VERSION}-stable/Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
 # RUN unzip Godot_v${_THIS_DOCKER_GODOT_VERSION}-stable_export_templates.tpz
 
 
-RUN wget https://github.com/0x53A/godot-export-templates/releases/download/4-3-stable/export_templates_4.3.stable_win_and_web_release_only.zip
-RUN unzip export_templates_4.3.stable_win_and_web_release_only.zip
+RUN wget https://github.com/0x53A/godot-export-templates/releases/download/4-4-1-stable/export_templates_4.4.1.stable_win_and_web_release_only.zip
+RUN unzip export_templates_4.4.1.stable_win_and_web_release_only.zip
 
 RUN mkdir -p /godot_bin/editor_data/export_templates/${_THIS_DOCKER_GODOT_VERSION}.stable
-RUN mv export_templates_4.3.stable_win_and_web_release_only/* /godot_bin/editor_data/export_templates/${_THIS_DOCKER_GODOT_VERSION}.stable
+RUN mv export_templates_4.4.1.stable_win_and_web_release_only/* /godot_bin/editor_data/export_templates/${_THIS_DOCKER_GODOT_VERSION}.stable
 
 
 # --------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------
 # emsdk build image
 
-FROM emscripten/emsdk:3.1.70 as stage_build_emsdk
+FROM emscripten/emsdk:4.0.10 as stage_build_emsdk
 # https://github.com/emscripten-core/emsdk/tree/main/docker
 
 
@@ -124,9 +124,9 @@ FROM stage_prebuild_ubuntu
 
 # ------------------------------------------------------------------
 # Variables
-ENV _THIS_DOCKER_GODOT_VERSION "4.3"
-ENV _THIS_DOCKER_EMSDK_VERSION_TO_INSTALL "3.1.70"
-ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
+ENV _THIS_DOCKER_GODOT_VERSION "4.4.1"
+ENV _THIS_DOCKER_EMSDK_VERSION_TO_INSTALL "4.0.10"
+ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "22.16.0"
 # ------------------------------------------------------------------
 
 # ------------------------------------------------------------------
