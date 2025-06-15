@@ -58,7 +58,7 @@ RUN mv export_templates_4.4.1.stable_win_and_web_release_only/* /godot_bin/edito
 # --------------------------------------------------------------------------------------------------------------------------
 # emsdk build image
 
-FROM emscripten/emsdk:3.1.70 as stage_build_emsdk
+FROM emscripten/emsdk:4.0.2 as stage_build_emsdk
 # https://github.com/emscripten-core/emsdk/tree/main/docker
 
 
@@ -125,7 +125,8 @@ FROM stage_prebuild_ubuntu
 # ------------------------------------------------------------------
 # Variables
 ENV _THIS_DOCKER_GODOT_VERSION "4.4.1"
-ENV _THIS_DOCKER_EMSDK_VERSION_TO_INSTALL "3.1.70"
+ENV _THIS_DOCKER_EMSDK_VERSION_TO_INSTALL "4.0.2"
+# note: the version of node packaged with the emsdk - can be read from https://github.com/emscripten-core/emsdk/blob/{emsdkversion}/docker/Dockerfile
 ENV _THIS_DOCKER_EMSDK_NODE_VERSION = "20.18.0"
 # ------------------------------------------------------------------
 
